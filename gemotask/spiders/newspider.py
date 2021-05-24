@@ -1,5 +1,5 @@
 import scrapy
-
+from gemotask.items import GemotaskItem
 
 class newspider(scrapy.Spider):
     name = "newspider"
@@ -11,22 +11,21 @@ class newspider(scrapy.Spider):
 
 
     def parseArticle(self, response):
-
+        item = GemotaskItem()
         if response is not None:
             try:
-                yield {
-                    "title": response.css("h1::text").get(),
-                    "link": response.xpath("//meta[@property='og:url']/@content").get(),
-                    "author": response.xpath(
-                        "//a[@class='author-unit__text b-font-family-serif']/text()").get().replace("By ", ""),
-                    "article_text": "\n".join(
+                item["title"] = response.css("h1::text").get()
+                item["link"] = response.xpath("//meta[@property='og:url']/@content").get()
+                item["author"] = response.xpath(
+                        "//a[@class='author-unit__text b-font-family-serif']/text()").get().replace("By ", "")
+                item["article_text"] = "\n".join(
                         response.xpath('//div[@class="ssrcss-18snukc-RichTextContainer e5tfeyi1"]/p/text()').extract())
-                }
+                yield item
             except:
-                yield {
-                    "title": response.css("h1::text").get(),
-                    "link": response.xpath("//meta[@property='og:url']/@content").get(),
-                    "author": None,
-                    "article_text": "\n".join(
-                        response.xpath('//div[@class="ssrcss-18snukc-RichTextContainer e5tfeyi1"]/p/text()').extract())
-                }
+                item["title"] = response.css("h1::text").get()
+                item["link"] = response.xpath("//meta[@property='og:url']/@content").get()
+                item["author"] = None
+                item["article_text"] = "\n".join(
+                    response.xpath('//div[@class="ssrcss-18snukc-RichTextContainer e5tfeyi1"]/p/text()').extract())
+                yield item
+
